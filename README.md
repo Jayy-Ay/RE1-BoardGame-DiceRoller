@@ -3,6 +3,8 @@
 ![Static HTML](https://img.shields.io/badge/HTML-static-E34F26?logo=html5&logoColor=white)
 ![Vanilla JavaScript](https://img.shields.io/badge/JavaScript-vanilla-F7DF1E?logo=javascript&logoColor=black)
 
+![Demo of the Resident Evil dice roller](assets/demo.gif)
+
 A fast, self-hostable dice roller for *Resident Evil: The Board Game (2023)*. Add red or blue dice, roll every die independently, click a die to remove it, or clear the pad. The site runs entirely in the browser, with no build step, account, backend, or third-party runtime assets.
 
 ## Play online
