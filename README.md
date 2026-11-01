@@ -5,6 +5,11 @@
 
 A fast, self-hostable dice roller for *Resident Evil: The Board Game (2023)*. Add red or blue dice, roll every die independently, click a die to remove it, or clear the pad. The site runs entirely in the browser, with no build step, account, backend, or third-party runtime assets.
 
+## Play online
+
+Once GitHub Pages is enabled for this repository, play the live version at
+[Jayy-Ay.github.io/RE1-BoardGame-DiceRoller](https://jayy-ay.github.io/RE1-BoardGame-DiceRoller/).
+
 ## Features
 
 - Six separate face entries for each colour, including repeated symbols as distinct physical faces.
