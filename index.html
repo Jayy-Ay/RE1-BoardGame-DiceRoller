@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Resident Evil 1 Board Game Dice Roller</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="roller">
+    <div class="toolbar">
+      <h1 class="title">Resident Evil 1 Board Game Dice Roller</h1>
+      <span id="dice-count" class="dice-count" aria-live="polite">0 dice</span>
+    </div>
+
+    <div id="dice-area" class="dice-area" role="group" aria-label="Dice; activate a die to remove it">
+      <p id="empty-state" class="empty-state">Add red or blue dice to begin.</p>
+      <div id="dice" class="dice"></div>
+    </div>
+
+    <div class="bottom-bar">
+      <button id="add-red" class="add-button red-button" type="button" aria-label="Add one red die"><span aria-hidden="true">+</span> Red</button>
+      <button id="add-blue" class="add-button blue-button" type="button" aria-label="Add one blue die"><span aria-hidden="true">+</span> Blue</button>
+      <button id="roll" class="roll-button" type="button">Roll</button>
+      <button id="clear" class="clear-button" type="button">Clear</button>
+    </div>
+    <footer class="credit">Made by <a href="https://github.com/Jayy-Ay">Jayy-Ay</a></footer>
+  </main>
+  <script src="dice-faces.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Dice roller checks</title>
+  <style>body{font:16px Arial,sans-serif;margin:24px}iframe{width:400px;height:300px;border:1px solid #888}pre{white-space:pre-wrap}</style>
+</head>
+<body>
+  <h1>Dice roller checks</h1>
+  <pre id="results">Running…</pre>
+  <iframe id="app" title="Dice roller under test"></iframe>
+  <script>
+    document.getElementById('app').onload = function () {
+      var win = this.contentWindow;
+      var doc = win.document;
+      var output = document.getElementById('results');
+      var passed = 0;
+
+      function check(condition, message) {
+        if (!condition) throw new Error(message);
+        passed++;
+      }
+      function click(id) { doc.getElementById(id).click(); }
+      function dice() { return doc.querySelectorAll('.die'); }
+      function index(die) { return Number(die.getAttribute('data-face-index')); }
+
+      try {
+        check(doc.title === 'Resident Evil 1 Board Game Dice Roller', 'Page title is incorrect');
+        check(doc.querySelector('h1').textContent === doc.title, 'Visible title is incorrect');
+        check(doc.querySelector('.credit a').href === 'https://github.com/Jayy-Ay', 'Credit link is incorrect');
+        check(win.DICE_FACES.red.length === 6 && win.DICE_FACES.blue.length === 6, 'Each colour needs six faces');
+        var footer = doc.querySelectorAll('.bottom-bar button');
+        check(footer[0].id === 'add-red' && footer[1].id === 'add-blue' && footer[2].id === 'roll' && footer[3].id === 'clear', 'Footer controls are out of order');
+        click('roll');
+        check(dice().length === 0, 'Empty roll changed the pad');
+
+        var originalRandom = win.Math.random;
+        var boundaries = [0, 1 / 6, 2 / 6, 3 / 6, 4 / 6, 5 / 6];
+        for (var i = 0; i < 6; i++) {
+          (function (value) { win.Math.random = function () { return value; }; }(boundaries[i]));
+          click('add-red');
+          check(index(dice()[i]) === i, 'Face index ' + i + ' was not selected');
+          check(dice()[i].querySelector('img').getAttribute('src') === 'assets/red-' + (i + 1) + '.png', 'Red face image ' + (i + 1) + ' was not used');
+        }
+        check(dice().length === 6, 'Red dice were not added');
+        var hoverDie = dice()[0];
+        var box = hoverDie.getBoundingClientRect();
+        hoverDie.dispatchEvent(new win.MouseEvent('mousemove', { clientX: box.left + 8, clientY: box.top + box.height / 2, bubbles: true }));
+        var leftTilt = hoverDie.querySelector('.face-result').style.transform;
+        hoverDie.dispatchEvent(new win.MouseEvent('mousemove', { clientX: box.right - 8, clientY: box.top + box.height / 2, bubbles: true }));
+        check(leftTilt !== hoverDie.querySelector('.face-result').style.transform, 'Mouse position did not change die tilt');
+        check(hoverDie.style.getPropertyValue('--shine-x') !== '', 'Mouse position did not move the highlight');
+        hoverDie.dispatchEvent(new win.MouseEvent('mouseleave'));
+        check(hoverDie.querySelector('.face-result').style.transform === '', 'Die tilt did not reset');
+
+        var redFaces = win.DICE_FACES.red;
+        var savedImage = redFaces[1].image;
+        redFaces[1].image = redFaces[0].image;
+        win.Math.random = function () { return 0; };
+        click('add-red');
+        win.Math.random = function () { return 1 / 6; };
+        click('add-red');
+        check(index(dice()[6]) === 0 && index(dice()[7]) === 1, 'Duplicate images lost their separate face indices');
+        check(dice()[6].querySelector('img').getAttribute('src') === dice()[7].querySelector('img').getAttribute('src'), 'Duplicate-image setup failed');
+        redFaces[1].image = savedImage;
+
+        click('add-blue');
+        check(dice()[8].getAttribute('data-color') === 'blue', 'Blue configuration was not used');
+        check(dice()[8].querySelector('img').getAttribute('src') === 'assets/blue-2.png', 'Blue face image was not used');
+        var draws = 0;
+        win.Math.random = function () { return (draws++ % 6) / 6; };
+        click('roll');
+        check(dice().length === 9, 'Roll changed dice count');
+        check(draws === 9, 'Roll did not draw independently for every die');
+        for (i = 0; i < 9; i++) check(index(dice()[i]) === i % 6, 'Roll did not sample die ' + i);
+        click('roll');
+        check(draws === 18, 'Second roll did not resample every die');
+        for (i = 0; i < 9; i++) check(index(dice()[i]) === (i + 9) % 6, 'Second roll reused a stale result');
+        check(dice()[8].getAttribute('data-color') === 'blue', 'Roll changed dice colour');
+
+        dice()[3].click();
+        check(dice().length === 8 && dice()[7].getAttribute('data-color') === 'blue', 'Removing one die affected others');
+        click('clear');
+        check(dice().length === 0 && doc.getElementById('dice-count').textContent === '0 dice', 'Clear failed');
+
+        win.Math.random = originalRandom;
+        for (i = 0; i < 50; i++) click(i % 2 ? 'add-blue' : 'add-red');
+        for (i = 0; i < 20; i++) click('roll');
+        check(dice().length === 50, 'Rapid actions changed dice count');
+        check(doc.getElementById('dice-area').scrollWidth <= doc.getElementById('dice-area').clientWidth, 'Dice overflowed horizontally');
+        output.textContent = 'PASS — ' + passed + ' checks';
+      } catch (error) {
+        output.textContent = 'FAIL after ' + passed + ' checks: ' + error.message;
+      }
+    };
+    document.getElementById('app').src = 'index.html?test=' + Date.now();
+  </script>
+</body>
+</html>
